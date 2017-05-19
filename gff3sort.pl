@@ -7,47 +7,42 @@ use Fatal qw/open close chdir/;
 use Getopt::Long;
 
 my $usage = <<"END_USAGE";
-Usage: $0 --input=[input GFF3 file] >output.sort.gff3
-Required Parameters:
-    --input    The GFF3 file to be sorted
+Usage: $0 [input GFF3 file] >output.sort.gff3
 END_USAGE
 
 my $help;
-my $input;
 GetOptions(
     'help'          =>  \$help,
-    'input=s'       =>  \$input,
 );
 
 
-if ($help or !$input) {
+if ($help or @ARGV!=1) {
     print "$usage";
     exit(0);
 }
 
 ############################
-# %gff: sort by: chr, start pos, lines without "parent=" attributes and lines with "parent=" attributes
+# %gff: sort by: chr, start pos, lines without "parent=" attributes (according to their appearance),
+# and lines with "parent=" attributes (according to their appearance)
 ############################
 
 my %gff;
-open my $fh, "<", $input;
-while (<$fh>) {
+while (<>) {
     chomp;
     next if (/^#/);
     my ($chr, $pos, $note) = (split /\t/, $_)[0,3,-1];
     if ($note =~ /parent=/i) {
-        $gff{$chr}{$pos}{"2"}{$_} = 1;
+        push @{$gff{$chr}{$pos}{"2"}}, $_;
     }
     else {
-        $gff{$chr}{$pos}{"1"}{$_} = 1;
+        push @{$gff{$chr}{$pos}{"1"}}, $_;
     }
 }
-close $fh;
 
 for my $chr (sort keys %gff) {
     for my $pos (sort {$a<=>$b} keys %{$gff{$chr}}) {
         for my $rank (sort {$a<=>$b} keys %{$gff{$chr}{$pos}}) {
-            print join("\n", keys %{$gff{$chr}{$pos}{$rank}});
+            print join("\n", @{$gff{$chr}{$pos}{$rank}});
             print "\n";
         }
     }
