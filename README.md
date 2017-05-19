@@ -3,7 +3,7 @@ A Perl Script to sort gff3 files and produce suitable results for tabix tools
 
 ## Usage
 ```
-gff3sort.pl --input=[input GFF3 file] >output.sort.gff3
+gff3sort.pl [input GFF3 file] >output.sort.gff3
 ```
 
 ## Background
