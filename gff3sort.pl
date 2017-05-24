@@ -31,11 +31,11 @@ while (<>) {
     chomp;
     next if (/^#/);
     my ($chr, $pos, $note) = (split /\t/, $_)[0,3,-1];
-    if ($note =~ /parent=/i) {
-        push @{$gff{$chr}{$pos}{"2"}}, $_;
+    if ($note =~ /Parent=/i) {
+        push @{$gff{$chr}{$pos}{1}}, $_;
     }
     else {
-        push @{$gff{$chr}{$pos}{"1"}}, $_;
+        push @{$gff{$chr}{$pos}{0}}, $_;
     }
 }
 
