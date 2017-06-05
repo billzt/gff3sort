@@ -10,7 +10,7 @@ Optional Parameters:
                     features appearing behind their children features.
 ```
 
-## Publication
+## Pre-Print
 ```
 Zhu T, Liang C, Meng Z, Guo S, Zhang R: GFF3sort: An efficient tool to sort GFF3 files for tabix indexing. bioRxiv 2017:145938.
 ```
