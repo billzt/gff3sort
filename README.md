@@ -4,6 +4,15 @@ A Perl Script to sort gff3 files and produce suitable results for tabix tools
 ## Usage
 ```
 gff3sort.pl [input GFF3 file] >output.sort.gff3
+Optional Parameters:
+    --precise       Run in precise mode, about 2X~3X slower than the default mode.
+                    Only needed to be used if your original GFF3 files have parent
+                    features appearing behind their children features.
+```
+
+## Publication
+```
+Zhu T, Liang C, Meng Z, Guo S, Zhang R: GFF3sort: An efficient tool to sort GFF3 files for tabix indexing. bioRxiv 2017:145938.
 ```
 
 ## Background
