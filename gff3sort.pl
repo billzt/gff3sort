@@ -84,7 +84,15 @@ sub toposort {
 my %gff;
 while (<>) {
     chomp;
-    next if (/^#/);
+    if ($_ =~ /^#/) {
+        if ($_ !~ /[^#]/) {
+            next;
+        }
+        else {
+            print "$_\n";
+            next;
+        }
+    }
     my ($chr, $pos) = (split /\t/, $_)[0,3];
     push @{$gff{$chr}{$pos}}, $_;
 
