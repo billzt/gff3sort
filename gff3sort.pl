@@ -111,11 +111,9 @@ for my $chr (sort keys %gff) {
             my %id2line = ();           # This hash maps a ID to its full feature line
             for my $line (@lines) {
                 my ($note) = (split /\t/, $line)[-1];
-                my ($id) = $note=~/ID=([^;]+)/;         # Using the semicolon as the separator can deal with any IDs even with blanks.
-                                                        # Thanks to reviewers' comments
-                my ($parent) = $note=~/Parent=([^;]+)/; # Attribute names are case sensitive. "Parent" is not the same as "parent". 
-                                                        # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
-                                                        # Thanks to reviewers' comments
+                my ($id) = $note=~/ID=([^;]+)/;             # Using the semicolon as the separator can deal with any IDs even with blanks.
+                my ($parents) = $note=~/Parent=([^;]+)/;    # Attribute names are case sensitive. "Parent" is not the same as "parent". 
+                
                 ##### Begin to fill the hash %id2line
                 if (defined($id)) {
                     $id2line{$id} = $line;
@@ -124,17 +122,22 @@ for my $chr (sort keys %gff) {
                             # i.e they are the least-level features with no children
                     $id2line{$line} = $line;
                 }
+                ##### Finished filling the hash %id2line
                 
                 ##### Begin to fill the hash %parent2children
-                if (defined($parent)) {
-                    if (defined($id)) {
-                        push @{ $parent2children{$parent} }, $id;
-                    }
-                    else {  #  These lines has no Parent attributes (but possibly have ID attributes, 
-                            #  i.e they are the top-level features with no parents
-                        push @{ $parent2children{$parent} }, $line;
+                if (defined($parents)) {
+                    my @parents = split /,/,  $parents;     # Parent can have multiple values separated by comma
+                    for my $parent (@parents) {
+                        if (defined($id)) {
+                            push @{ $parent2children{$parent} }, $id;
+                        }
+                        else {  #  These lines has no ID attributes (but possibly have Parent attributes, 
+                                #  i.e they are the least-level features with no children
+                            push @{ $parent2children{$parent} }, $line;
+                        }
                     }
                 }
+                ##### Finished filling the hash %parent2children
             }
             my @unsorted_ids = keys %id2line;
             my @sorted_ids = toposort(\&{sub {my $i = shift @_; return @{$parent2children{$i} || []}}}, \@unsorted_ids);
