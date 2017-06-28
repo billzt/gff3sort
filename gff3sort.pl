@@ -81,11 +81,18 @@ it under the same terms as Perl itself.
 my $usage = <<"END_USAGE";
 Usage: $0 [input GFF3 file] >output.sort.gff3
 Optional Parameters:
-    --precise       Run in precise mode, about 2X~3X slower than the default mode. 
-                    Only needed to be used if your original GFF3 files have parent
-                    features appearing behind their children features.
-    --chr_order [alphabet|natural|original]
-    --extract_FASTA
+    --precise           Run in precise mode, about 2X~3X slower than the default mode. 
+                        Only needed to be used if your original GFF3 files have parent
+                        features appearing behind their children features.
+                        
+    --chr_order         [alphabet|natural|original] Choose how to sort the chromosomes
+                        [Default: alphabet]
+                        
+    --extract_FASTA     Use this option to extract the inline FASTA sequence in the input GFF3 file
+    
+    --help              Print this help and exit.
+
+See detailed manuals by: perldoc $0
 END_USAGE
 
 ############ Usage ############
