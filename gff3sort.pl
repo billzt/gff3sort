@@ -10,6 +10,74 @@ use lib "$Bin";
 use Sort::Naturally qw/nsort/;    ###### https://metacpan.org/pod/Sort::Naturally
 use Sort::Topological qw/toposort/;   ###### https://metacpan.org/pod/Sort::Topological
 
+=head1 NAME
+
+$0 - Sort GFF3 file for tabix indexing
+
+=head1 SYNOPSIS
+
+$0 [input GFF3 file] >output.sort.gff3
+
+=head1 COMMAND-LINE OPTIONS
+
+--precise           Run in precise mode, about 2X~3X slower than the default mode. 
+                    Only needed to be used if your original GFF3 files have parent
+                    features appearing behind their children features.
+                    
+--chr_order         Select how the chromosome IDs should be sorted. 
+                    Acceptable values are: alphabet, natural, original
+                    [Default: alphabet]
+                    
+--extract_FASTA     If the input GFF3 file contains FASTA sequence at the end, use this
+                    option to extract the FASTA sequence and place in a separate file 
+                    with the extention '.fasta'. By default, the FASTA sequences would be
+                    discarded.
+
+=head1 DESCRIPTION
+
+The tabix tool requires GFF3 files to be sorted by chromosomes and positions, which could be 
+performed in the GNU sort program or the GenomeTools package. However, when dealing with feature 
+lines in the same chromosome and position, both of the tools would sort them in an ambiguous 
+way that usually results in parent features being placed behind their children. This would cause erroneous 
+in some genome browsers such as JBrowse. GFF3sort can properly deal with the order of features 
+that have the same chromosome and start position, therefore generating suitable results for JBrowse display.
+
+=head2 Precise mode
+
+In most situations, the original GFF3 annotations produced by genome annotation projects have already placed 
+parent features before their children. Therefore, GFF3sort would remember their original order and placed them accordingly
+within the same chromosome and start position block, which is the default behavior.
+
+Sometimes the order in the input file has already been disturbed (for example, by GNU sort or GenomeTools).
+In this situation, GFF3sort would sort them according to the parent-child topology using the sorting algorithm of 
+directed acyclic graph (https://metacpan.org/pod/Sort::Topological), which is the most precise behavior but 2X~3X 
+slower than the default mode.
+
+=head2 The chromosome order
+
+In default, chromosomes are sorted alphabetly. Users can choose to sort naturally (see https://metacpan.org/pod/Sort::Naturally)
+or keep their original orders.
+
+Therefore, chromosomes "Chr7 Chr1 Chr10 Chr2 Chr1" would be sorted as:
+
+By alphabet (default):  Chr1 Chr10 Chr2 Chr7
+
+By natural:             Chr1 Chr2 Chr7 Chr10
+
+Kepp original:          Chr7 Chr1 Chr10 Chr2 (Note: tabix requires continuous chromosome blocks. Therefore the same chromosomes 
+                                              such as Chr1 must be grouped together)
+
+=head1 AUTHOR
+
+Tao Zhu E<lt>zhutao@caas.cnE<gt>
+
+Copyright (c) 2017
+
+This script is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
 my $usage = <<"END_USAGE";
 Usage: $0 [input GFF3 file] >output.sort.gff3
 Optional Parameters:
