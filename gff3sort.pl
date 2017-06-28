@@ -109,10 +109,11 @@ for my $chr (sort keys %gff) {
             my %id2line = ();
             for my $line (@lines) {
                 my ($note) = (split /\t/, $line)[-1];
-                my ($id) = $note=~/ID=([^;]+)/;     
+                my ($id) = $note=~/ID=([^;]+)/;         # Using the semicolon as the separator can deal with any IDs even with blanks.
+                                                        # Thanks to reviewers' comments
                 my ($parent) = $note=~/Parent=([^;]+)/; # Attribute names are case sensitive. "Parent" is not the same as "parent". 
                                                         # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
-                                                        # Thanks to Dr. Miklos Csuros’ comments
+                                                        # Thanks to reviewers' comments
                 if (defined($id)) {
                     $id2line{$id} = $line;
                 }
