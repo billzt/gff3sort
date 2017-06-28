@@ -138,10 +138,12 @@ while (<$in_fh>) {
     # If we have not encountered the ##FASTA pragma, collect annotation lines to our hash %gff
     if (!$encounter_FASTA) {
         if ($_ =~ /^#/) {
-            if ($_ !~ /[^#]/) {
+            if ($_ !~ /[^#]/) { # lines with pure # chars are separators. As GFF3sort 
+                                # generates results for tabix indexing instead of human reading, these separators
+                                # are not so necessary
                 next;
             }
-            else {
+            else {  # lines start with # and contains other non # chars are pragma lines, keep them
                 print "$_\n";
                 next;
             }
