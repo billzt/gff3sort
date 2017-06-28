@@ -101,12 +101,14 @@ while (<>) {
 for my $chr (sort keys %gff) {
     for my $pos (sort {$a<=>$b} keys %{$gff{$chr}}) {
         my @lines = @{$gff{$chr}{$pos}};
+        ###### Only one feature line under this chromosome and position: Do not need to sort
         if (@lines==1) {
             print "$lines[0]\n";
         }
-        elsif ($precise) {  # Precise mode: do Topological Sort
-            my %parent2children = ();
-            my %id2line = ();
+        ###### Precise mode: do Topological Sort
+        elsif ($precise) {
+            my %parent2children = ();   # This hash is used to do Topological Sort in precise mode
+            my %id2line = ();           # This hash maps a ID to its full feature line
             for my $line (@lines) {
                 my ($note) = (split /\t/, $line)[-1];
                 my ($id) = $note=~/ID=([^;]+)/;         # Using the semicolon as the separator can deal with any IDs even with blanks.
@@ -114,17 +116,22 @@ for my $chr (sort keys %gff) {
                 my ($parent) = $note=~/Parent=([^;]+)/; # Attribute names are case sensitive. "Parent" is not the same as "parent". 
                                                         # See https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
                                                         # Thanks to reviewers' comments
+                ##### Begin to fill the hash %id2line
                 if (defined($id)) {
                     $id2line{$id} = $line;
                 }
-                else {
+                else {      # These lines has no ID attributes (but possibly have Parent attributes, 
+                            # i.e they are the least-level features with no children
                     $id2line{$line} = $line;
                 }
+                
+                ##### Begin to fill the hash %parent2children
                 if (defined($parent)) {
                     if (defined($id)) {
                         push @{ $parent2children{$parent} }, $id;
                     }
-                    else {
+                    else {  #  These lines has no Parent attributes (but possibly have ID attributes, 
+                            #  i.e they are the top-level features with no parents
                         push @{ $parent2children{$parent} }, $line;
                     }
                 }
@@ -135,7 +142,8 @@ for my $chr (sort keys %gff) {
                 print "$id2line{$id}\n";
             }            
         }
-        else {  # Default mode: keep lines in their original order
+        ###### Default mode: keep lines in their original order
+        else {  
             print join("\n", @lines), "\n";
         }
     }
