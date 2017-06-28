@@ -17,16 +17,19 @@ Optional Parameters:
                     Only needed to be used if your original GFF3 files have parent
                     features appearing behind their children features.
     --chr_order [alphabet|natural|original]
+    --extract_FASTA
 END_USAGE
 
 ############ Usage ############
 my $help;
 my $precise;
 my $chr_order = 'alphabet';
+my $extract_FASTA;
 GetOptions(
     'help'          =>  \$help,
     'precise'       =>  \$precise,
-    'chr_order=s'   =>  \$chr_order
+    'chr_order=s'   =>  \$chr_order,
+    'extract_FASTA' =>  \$extract_FASTA,
 );
 if ($help or @ARGV!=1) {
     print "$usage";
@@ -45,21 +48,52 @@ $chr_order = lc($chr_order);
 
 my %gff; 
 my @chromosomes;    # Store the order of chromosomes
-while (<>) {
+my $encounter_FASTA = 0;
+my $FASTA_str;
+my $input = shift;
+open my $in_fh, "<", $input;
+while (<$in_fh>) {
     chomp;
-    if ($_ =~ /^#/) {
-        if ($_ !~ /[^#]/) {
-            next;
+    
+    # deal with ##FASTA pragma, as tabix does not allow such blocks
+    if ($_ eq '##FASTA') {
+        $encounter_FASTA = 1;
+    }
+    
+    # If we have not encountered the ##FASTA pragma, collect annotation lines to our hash %gff
+    if (!$encounter_FASTA) {
+        if ($_ =~ /^#/) {
+            if ($_ !~ /[^#]/) {
+                next;
+            }
+            else {
+                print "$_\n";
+                next;
+            }
         }
-        else {
-            print "$_\n";
-            next;
+        my ($chr, $pos) = (split /\t/, $_)[0,3];
+        push @{$gff{$chr}{$pos}}, $_;
+        push @chromosomes, $chr unless ($chr~~@chromosomes);    
+    }
+    # If we have encountered the ##FASTA pragma, we should stop collect lines 
+    # If users have chosen to extract_FASTA,
+    # Then extract FASTA here (excluding the ##FASTA pragma it self)
+    else {
+        if ($extract_FASTA && $_ ne '##FASTA') {
+            $FASTA_str .= "$_\n";
         }
     }
-    my ($chr, $pos) = (split /\t/, $_)[0,3];
-    push @{$gff{$chr}{$pos}}, $_;
-    push @chromosomes, $chr unless ($chr~~@chromosomes);
 }
+close $in_fh;
+
+# If the users have chosen to extract_FASTA, and there exisis FASTA sequences in the GFF file, print them
+if ($extract_FASTA && $FASTA_str) {
+    open my $out_fh, ">", "$input.fasta";
+    print {$out_fh} $FASTA_str;
+    close $out_fh;
+    warn "The inline FASTA sequences were extracted to file $input.fasta\n";
+}
+
 
 ###### Define the order of chromosomes based on users' option
 if ($chr_order eq 'alphabet') {
