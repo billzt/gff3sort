@@ -5,15 +5,25 @@ A Perl Script to sort gff3 files and produce suitable results for tabix tools
 ```
 gff3sort.pl [input GFF3 file] >output.sort.gff3
 Optional Parameters:
-    --precise       Run in precise mode, about 2X~3X slower than the default mode.
+--precise           Run in precise mode, about 2X~3X slower than the default mode. 
                     Only needed to be used if your original GFF3 files have parent
                     features appearing behind their children features.
+                    
+--chr_order         Select how the chromosome IDs should be sorted. 
+                    Acceptable values are: alphabet, natural, original
+                    [Default: alphabet]
+                    
+--extract_FASTA     If the input GFF3 file contains FASTA sequence at the end, use this
+                    option to extract the FASTA sequence and place in a separate file 
+                    with the extention '.fasta'. By default, the FASTA sequences would be
+                    discarded.
 ```
 
 ## Pre-Print
 ```
 Zhu T, Liang C, Meng Z, Guo S, Zhang R: GFF3sort: An efficient tool to sort GFF3 files for tabix indexing. bioRxiv 2017:145938.
 ```
+
 
 ## Background
 The tabix tool from [htslib](https://github.com/samtools/htslib) requires files sorted by their chromosomes and positions. For GFF3 files, they would be [sorted](http://gmod.org/wiki/JBrowse_FAQ#How_do_I_create_a_Tabix_indexed_GFF) by column 1 (chromosomes) and 4 (start positions) as:
