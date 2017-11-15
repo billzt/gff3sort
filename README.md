@@ -19,9 +19,9 @@ Optional Parameters:
                     discarded.
 ```
 
-## Pre-Print
+## Publication
 ```
-Zhu T, Liang C, Meng Z, Guo S, Zhang R: GFF3sort: An efficient tool to sort GFF3 files for tabix indexing. bioRxiv 2017:145938.
+Zhu T, Liang C, Meng Z, Guo S, Zhang R: GFF3sort: A novel tool to sort GFF3 files for tabix indexing. BMC Bioinformatics 2017, 18:482, https://doi.org/10.1186/s12859-017-1930-3
 ```
 
 
