@@ -10,7 +10,7 @@ use lib "$Bin";
 use Sort::Naturally qw/nsort/;    ###### https://metacpan.org/pod/Sort::Naturally
 use Sort::Topological qw/toposort/;   ###### https://metacpan.org/pod/Sort::Topological
 use Pod::Usage;
-use experimental qw/smartmatch/;
+no if ($] >= 5.018), 'warnings' => 'experimental';
 
 ############ Usage ############
 my $help;
